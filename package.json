@@ -1,13 +1,12 @@
 {
-  "name": "amalgamatic",
-  "description": "Search all the things! Pluggable metasearch. Uses APIs when it can, scrapes otherwise, write your own plugins for things that don't already have them.",
+  "name": "amalgamatic-sfx",
+  "description": "SFX plugin for amalgamatic",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ucsf-ckm/amalgamatic.git"
+    "url": "https://github.com/ucsf-ckm/amalgamatic-sfx.git"
   },
-  "version": "1.1.0",
+  "version": "1.0.0",
   "dependencies": {
-    "async": "^0.9.0",
     "cheerio": "^0.17.0"
   },
   "scripts": {
