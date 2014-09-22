@@ -5,7 +5,7 @@ var http = require('http');
 exports.search = function (query, callback) {
     'use strict';
 
-    if (! query) {
+    if (! query || ! query.searchTerm) {
         callback({data: []});
         return;
     }
@@ -14,7 +14,7 @@ exports.search = function (query, callback) {
         host: 'ucelinks.cdlib.org',
         port: 8888,
         path: '/sfx_ucsf/az?param_textSearchType_value=startsWith&' +
-            querystring.stringify({param_pattern_value: query}),
+            querystring.stringify({param_pattern_value: query.searchTerm}),
     };
 
     http.get(options, function (resp) {
