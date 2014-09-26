@@ -6,7 +6,7 @@ exports.search = function (query, callback) {
     'use strict';
 
     if (! query || ! query.searchTerm) {
-        callback({data: []});
+        callback(null, {data: []});
         return;
     }
 
@@ -34,9 +34,9 @@ exports.search = function (query, callback) {
                 });
             });
 
-            callback({data: result});
+            callback(null, {data: result});
         });
     }).on('error', function (e) {
-        callback({error: e.message});
+        callback(e);
     });
 };

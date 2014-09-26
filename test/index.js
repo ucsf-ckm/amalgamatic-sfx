@@ -22,14 +22,16 @@ describe('sfx', function () {
 	});
 
 	it('returns an empty result if no search term provided', function (done) {
-		sfx.search({searchTerm: ''}, function (result) {
+		sfx.search({searchTerm: ''}, function (err, result) {
+			expect(err).to.be.not.ok;
 			expect(result).to.deep.equal({data:[]});
 			done();
 		});
 	});
 
 	it('returns an empty result if no first argument', function (done) {
-		sfx.search(null, function (result) {
+		sfx.search(null, function (err, result) {
+			expect(err).to.be.not.ok;
 			expect(result).to.deep.equal({data:[]});
 			done();
 		});
@@ -40,7 +42,8 @@ describe('sfx', function () {
 			.get('/sfx_ucsf/az?param_textSearchType_value=startsWith&param_pattern_value=medicine')
 			.reply('200', '<a class="Results" href="#">Medicine</a><a class="Results" href="#">Medicine</a>');
 
-		sfx.search({searchTerm: 'medicine'}, function (result) {
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
+			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(2);
 			done();
 		});
@@ -51,7 +54,8 @@ describe('sfx', function () {
 			.get('/sfx_ucsf/az?param_textSearchType_value=startsWith&param_pattern_value=fhqwhgads')
 			.reply('200', '<html></html>');
 
-		sfx.search({searchTerm: 'fhqwhgads'}, function (result) {
+		sfx.search({searchTerm: 'fhqwhgads'}, function (err, result) {
+			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(0);
 			done();
 		});
@@ -62,17 +66,18 @@ describe('sfx', function () {
 			.get('/sfx_ucsf/az?param_textSearchType_value=startsWith&param_pattern_value=medicine%20and%20health%2C%20Rhode%20Island')
 			.reply('200', '<a class="Results" href="#">medicine and health, Rhode Island</a>');
 
-		sfx.search({searchTerm: 'medicine and health, Rhode Island'}, function (result) {
+		sfx.search({searchTerm: 'medicine and health, Rhode Island'}, function (err, result) {
+			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(1);
 			done();
 		});
 	});
 
 	it('returns an error object if there was an HTTP error', function (done) {
-		sfx.search({searchTerm: 'medicine'}, function (result) {
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
 			nock.enableNetConnect();
-			expect(result.data).to.be.undefined;
-			expect(result.error).to.equal('Nock: Not allow net connect for "ucelinks.cdlib.org:8888"');
+			expect(result).to.be.not.ok;
+			expect(err.message).to.equal('Nock: Not allow net connect for "ucelinks.cdlib.org:8888"');
 			done();
 		});
 	});
