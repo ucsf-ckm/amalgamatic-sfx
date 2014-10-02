@@ -149,4 +149,29 @@ describe('sfx', function () {
 			done();
 		});
 	});
+
+	it('should strip leading and trailing whitespace from URLs', function (done) {
+		nock('http://example.com:80')
+			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a class="Results" href=" http://example.com/path\n">FQDN</a>');
+
+		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(1);
+			expect(result.data[0].url).to.equal('http://example.com/path');
+			done();
+		});
+	});
+
+	it('should gracefully handle missing URLs', function (done) {
+		nock('http://example.com:80')
+			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a class="Results">FQDN</a>');
+
+		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(0);
+			done();
+		});
+	});
 });
