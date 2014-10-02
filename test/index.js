@@ -1,9 +1,13 @@
 /*jshint expr: true*/
 
-var sfx = require('../index.js');
+var rewire = require('rewire');
+
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+
+var sfx = rewire('../index.js');
 
 var nock = require('nock');
-nock.disableNetConnect();
 
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -12,9 +16,15 @@ var expect = Lab.expect;
 var describe = lab.experiment;
 var it = lab.test;
 
+var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 
 describe('sfx', function () {
+
+	beforeEach(function (done) {
+		nock.disableNetConnect();
+		done();
+	});
 
 	afterEach(function (done) {
 		nock.cleanAll();
@@ -78,6 +88,64 @@ describe('sfx', function () {
 			nock.enableNetConnect();
 			expect(result).to.be.not.ok;
 			expect(err.message).to.equal('Nock: Not allow net connect for "ucelinks.cdlib.org:8888"');
+			done();
+		});
+	});
+
+	it('should use host, port, and path options if they are passed', function (done) {
+		var revert = sfx.__set__('http', {get: function (options) {
+			expect(options.host).to.equal('example.com');
+			expect(options.port).to.equal(8000);
+			expect(options.path).to.equal('/path?param_textSearchType_value=startsWith&param_pattern_value=medicine');
+			eventEmitter.emit('optionsChecked');
+			return {on: function () {}};
+		}});
+
+		eventEmitter.on('optionsChecked', function () {
+			revert();
+			done();
+		});
+
+		sfx.search({searchTerm: 'medicine', host: 'example.com', port: 8000, path: '/path'});
+	});
+
+	it('returns a URL that includes the domain name', function (done) {
+		nock('http://ucelinks.cdlib.org:8888')
+			.get('/sfx_ucsf/az?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a class="Results" href="/path">Just A Path</a>');
+
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(1);
+			expect(result.data[0].url).to.equal('//ucelinks.cdlib.org:8888/path');
+			done();
+		});
+	});
+
+	it('returns a URL that includes the domain name and omits port if none specified', function (done) {
+		nock('http://example.com:80')
+			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a class="Results" href="/path">Just A Path</a>');
+
+		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(1);
+			expect(result.data[0].url).to.equal('//example.com:80/path');
+			done();
+		});
+	});
+
+	it('should return fully-qualified URLs intact', function (done) {
+		nock('http://example.com:80')
+			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a class="Results" href="http://example.com/path">FQDN</a><a class="Results" href="https://example.com/path">Another FQDN</a><a class="Results" href="//example.com/path">One more FQDN</a>');
+
+		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(3);
+			expect(result.data[0].url).to.equal('http://example.com/path');
+			expect(result.data[1].url).to.equal('https://example.com/path');
+			expect(result.data[2].url).to.equal('//example.com/path');
 			done();
 		});
 	});
