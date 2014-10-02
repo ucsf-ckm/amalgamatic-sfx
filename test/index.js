@@ -1,6 +1,11 @@
 /*jshint expr: true*/
 
-var sfx = require('../index.js');
+var rewire = require('rewire');
+
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+
+var sfx = rewire('../index.js');
 
 var nock = require('nock');
 nock.disableNetConnect();
@@ -80,5 +85,22 @@ describe('sfx', function () {
 			expect(err.message).to.equal('Nock: Not allow net connect for "ucelinks.cdlib.org:8888"');
 			done();
 		});
+	});
+
+	it('should use host, port, and path options if they are passed', function (done) {
+		var revert = sfx.__set__('http', {get: function (options) {
+			expect(options.host).to.equal('example.com');
+			expect(options.port).to.equal(8000);
+			expect(options.path).to.equal('/path');
+			eventEmitter.emit('optionsChecked');
+			return {on: function () {}};
+		}});
+
+		eventEmitter.on('optionsChecked', function () {
+			revert();
+			done();
+		});
+
+		sfx.search({searchTerm: 'medicine', host: 'example.com', port: 8000, path: '/path'});
 	});
 });

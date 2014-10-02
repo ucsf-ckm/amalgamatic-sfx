@@ -11,9 +11,9 @@ exports.search = function (query, callback) {
     }
 
     var options = {
-        host: 'ucelinks.cdlib.org',
-        port: 8888,
-        path: '/sfx_ucsf/az?param_textSearchType_value=startsWith&' +
+        host: query.host || 'ucelinks.cdlib.org',
+        port: query.port || 8888,
+        path: query.path || '/sfx_ucsf/az?param_textSearchType_value=startsWith&' +
             querystring.stringify({param_pattern_value: query.searchTerm}),
     };
 
