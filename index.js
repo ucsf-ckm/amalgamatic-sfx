@@ -41,7 +41,7 @@ exports.search = function (query, callback) {
             $('a.Results').each(function () {
                 var url = $(this).attr('href');
                 if (! url.match(/^(https?:)?\/\/.+/)) {
-                    url = '//' + options.host + url;
+                    url = 'http://' + options.host + url;
                 }
                 result.push({
                     name: $(this).text(),
