@@ -1,4 +1,7 @@
 
+## [**3.1.2**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=5&state=closed)
+- [**#12**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/12) strip leading and trailing white space from urls
+
 ## [**3.1.1**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=4&state=closed)
 - [**#10**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/10) Add protocol to url if it&#39;s not returned by collection source
 
