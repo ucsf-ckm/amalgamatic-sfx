@@ -130,7 +130,7 @@ describe('sfx', function () {
 		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
 			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(1);
-			expect(result.data[0].url).to.equal('http://example.com:80/path');
+			expect(result.data[0].url).to.equal('http://example.com/path');
 			done();
 		});
 	});
