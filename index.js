@@ -40,13 +40,16 @@ exports.search = function (query, callback) {
             var result = [];
             $('a.Results').each(function () {
                 var url = $(this).attr('href');
-                if (! url.match(/^(https?:)?\/\/.+/)) {
-                    url = 'http://' + options.host + url;
+                if (typeof url === 'string') {
+                    url = url.trim();
+                    if (! url.match(/^(https?:)?\/\/.+/)) {
+                        url = 'http://' + options.host + url;
+                    }
+                    result.push({
+                        name: $(this).text(),
+                        url: url
+                    });
                 }
-                result.push({
-                    name: $(this).text(),
-                    url: url
-                });
             });
 
             callback(null, {data: result});
