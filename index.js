@@ -10,12 +10,23 @@ exports.search = function (query, callback) {
         return;
     }
 
-    var options = {
-        host: query.host || 'ucelinks.cdlib.org',
-        port: query.port || 8888,
-        path: query.path || '/sfx_ucsf/az?param_textSearchType_value=startsWith&' +
-            querystring.stringify({param_pattern_value: query.searchTerm}),
-    };
+    var options;
+    if (!query.host) {
+        options = {
+            host: 'ucelinks.cdlib.org',
+            port: 8888,
+            path: '/sfx_ucsf/az'
+        };
+    } else {
+        options = {
+            host: query.host,
+            port: query.port,
+            path: query.path || '/'
+        };
+    }
+
+    options.path = options.path + '?param_textSearchType_value=startsWith&' +
+                querystring.stringify({param_pattern_value: query.searchTerm});
 
     http.get(options, function (resp) {
         var rawData = '';
@@ -28,9 +39,13 @@ exports.search = function (query, callback) {
             var $ = cheerio.load(rawData);
             var result = [];
             $('a.Results').each(function () {
+                var url = $(this).attr('href');
+                if (! url.match(/^(https?:)?\/\/.+/)) {
+                    url = '//' + options.host + url;
+                }
                 result.push({
-                    'name': $(this).text(),
-                    'url': $(this).attr('href')
+                    name: $(this).text(),
+                    url: url
                 });
             });
 
