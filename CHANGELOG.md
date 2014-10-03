@@ -1,4 +1,7 @@
 
+## [**3.1.3**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=6&state=closed)
+- [**#14**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/14) include port number in re-created URLs if a port is provided
+
 ## [**3.1.2**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=5&state=closed)
 - [**#12**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/12) strip leading and trailing white space from urls
 
