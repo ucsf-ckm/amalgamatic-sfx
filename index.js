@@ -10,23 +10,28 @@ exports.search = function (query, callback) {
         return;
     }
 
-    var options;
+    var host, port, path;
     if (!query.host) {
-        options = {
-            host: 'ucelinks.cdlib.org',
-            port: 8888,
-            path: '/sfx_ucsf/az'
-        };
+        host = 'ucelinks.cdlib.org';
+        port = 8888;
+        path = '/sfx_ucsf/az';
     } else {
-        options = {
-            host: query.host,
-            port: query.port,
-            path: query.path || '/'
-        };
+        host = query.host;
+        port = parseInt(query.port, 10); 
+        path = query.path || '/';
     }
 
-    options.path = options.path + '?param_textSearchType_value=startsWith&' +
-                querystring.stringify({param_pattern_value: query.searchTerm});
+    path = path + '?param_textSearchType_value=startsWith&' +
+            querystring.stringify({param_pattern_value: query.searchTerm});
+
+    var options = {
+        host: host,
+        path: path
+    };
+
+    if (port) {
+        options.port = port;
+    }
 
     http.get(options, function (resp) {
         var rawData = '';
@@ -42,9 +47,15 @@ exports.search = function (query, callback) {
                 var url = $(this).attr('href');
                 if (typeof url === 'string') {
                     url = url.trim();
+                    
                     if (! url.match(/^(https?:)?\/\/.+/)) {
-                        url = 'http://' + options.host + url;
+                        var fqdn = 'http://' + host;
+                        if (port) {
+                            fqdn = fqdn + ':' + port;
+                        } 
+                        url = fqdn + url;
                     }
+
                     result.push({
                         name: $(this).text(),
                         url: url
