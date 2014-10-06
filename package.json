@@ -21,5 +21,8 @@
     "nock": "^0.47.0",
     "precommit-hook": "^1.0.7",
     "rewire": "^2.1.0"
-  }
+  },
+  "keywords": [
+    "amalgamatic-plugin"
+  ]
 }
