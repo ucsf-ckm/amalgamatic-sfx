@@ -2,9 +2,6 @@
 
 var rewire = require('rewire');
 
-var events = require('events');
-var eventEmitter = new events.EventEmitter();
-
 var sfx = rewire('../index.js');
 
 var nock = require('nock');
@@ -16,13 +13,33 @@ var expect = Lab.expect;
 var describe = lab.experiment;
 var it = lab.test;
 
+var before = lab.before;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 
 describe('sfx', function () {
 
+	var originalOptions = {};
+
+	before(function (done) {
+		var options = sfx.__get__('options');
+
+		for (var property in options) {
+			originalOptions[property] = options[property];
+		}
+		Object.freeze(originalOptions);
+		done();
+	});
+
 	beforeEach(function (done) {
+		var restoredOptions = {};
+
+		for (var property in originalOptions) {
+			restoredOptions[property] = originalOptions[property];
+		}	
+
 		nock.disableNetConnect();
+		sfx.__set__('options', restoredOptions);
 		done();
 	});
 
@@ -93,26 +110,22 @@ describe('sfx', function () {
 	});
 
 	it('should use host, port, and path options if they are passed', function (done) {
-		var revert = sfx.__set__('http', {get: function (options) {
-			expect(options.host).to.equal('example.com');
-			expect(options.port).to.equal(8000);
-			expect(options.path).to.equal('/path?param_textSearchType_value=startsWith&param_pattern_value=medicine');
-			eventEmitter.emit('optionsChecked');
-			return {on: function () {}};
-		}});
+		nock('http://example.com:8000')
+			.get('/path?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply(200, '<a class="Results" href="/path/result">Medicine</a>');
 
-		eventEmitter.on('optionsChecked', function () {
-			revert();
+		sfx.setOptions({host: 'example.com', port: 8000, path: '/path'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data).to.deep.equal([{name: 'Medicine', url: 'http://example.com:8000/path/result'}]);
 			done();
 		});
-
-		sfx.search({searchTerm: 'medicine', host: 'example.com', port: 8000, path: '/path'});
 	});
 
 	it('returns a URL that includes the domain name', function (done) {
 		nock('http://ucelinks.cdlib.org:8888')
 			.get('/sfx_ucsf/az?param_textSearchType_value=startsWith&param_pattern_value=medicine')
-			.reply('200', '<a class="Results" href="/path">Just A Path</a>');
+			.reply(200, '<a class="Results" href="/path">Just A Path</a>');
 
 		sfx.search({searchTerm: 'medicine'}, function (err, result) {
 			expect(err).to.be.not.ok;
@@ -127,10 +140,11 @@ describe('sfx', function () {
 			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
 			.reply('200', '<a class="Results" href="/path">Just A Path</a>');
 
-		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+		sfx.setOptions({host: 'example.com', port: 80, path: '/'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
 			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(1);
-			expect(result.data[0].url).to.equal('http://example.com/path');
+			expect(result.data[0].url).to.equal('http://example.com:80/path');
 			done();
 		});
 	});
@@ -140,7 +154,8 @@ describe('sfx', function () {
 			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
 			.reply('200', '<a class="Results" href="http://example.com/path">FQDN</a><a class="Results" href="https://example.com/path">Another FQDN</a><a class="Results" href="//example.com/path">One more FQDN</a>');
 
-		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+		sfx.setOptions({host: 'example.com', port: 80, path: '/'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
 			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(3);
 			expect(result.data[0].url).to.equal('http://example.com/path');
@@ -155,7 +170,8 @@ describe('sfx', function () {
 			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
 			.reply('200', '<a class="Results" href=" http://example.com/path\n">FQDN</a>');
 
-		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+		sfx.setOptions({host: 'example.com', port: 80, path: '/'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
 			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(1);
 			expect(result.data[0].url).to.equal('http://example.com/path');
@@ -168,9 +184,37 @@ describe('sfx', function () {
 			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
 			.reply('200', '<a class="Results">FQDN</a>');
 
-		sfx.search({searchTerm: 'medicine', host: 'example.com'}, function (err, result) {
+		sfx.setOptions({host: 'example.com', port: 80, path: '/'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
 			expect(err).to.be.not.ok;
 			expect(result.data.length).to.equal(0);
+			done();
+		});
+	});
+
+	it('should accept hostname as an option', function (done) {
+		nock('http://example.com')
+			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a class="Results" href="/result">Medicine</a>');
+
+		sfx.setOptions({hostname: 'example.com', port: 80, path: '/'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(1);
+			done();
+		});
+	});
+
+	it('should omit port in links if port is falsy', function (done) {
+		nock('http://example.com')
+			.get('/?param_textSearchType_value=startsWith&param_pattern_value=medicine')
+			.reply('200', '<a href="/result" class="Results">Medicine</a>');
+
+		sfx.setOptions({host: 'example.com', port: false, path: '/'});
+		sfx.search({searchTerm: 'medicine'}, function (err, result) {
+			expect(err).to.be.not.ok;
+			expect(result.data.length).to.equal(1);
+			expect(result.data[0].url).to.equal('http://example.com/result');
 			done();
 		});
 	});
