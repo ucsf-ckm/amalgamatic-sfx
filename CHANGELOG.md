@@ -1,4 +1,7 @@
 
+## [**5.0.0**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=9&state=closed)
+- [**#20**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/20) &quot;All Results&quot; link
+
 ## [**4.0.0**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=8&state=closed)
 - [**#19**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/19) implement setOptions(), closes #17
 - [**#17**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/17) Change options so that host, port, and path are specified at add() or with a config-specific function
