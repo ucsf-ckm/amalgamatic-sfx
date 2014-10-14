@@ -1,5 +1,9 @@
 
+## [**5.0.1**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=10&state=closed)
+- [**#22**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/22) withCredentials default to false
+
 ## [**5.0.0**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=9&state=closed)
+- [**#21**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/21) include link to all results, closes #20
 - [**#20**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/20) &quot;All Results&quot; link
 
 ## [**4.0.0**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=8&state=closed)
