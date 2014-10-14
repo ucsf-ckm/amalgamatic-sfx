@@ -17,6 +17,8 @@ var before = lab.before;
 var beforeEach = lab.beforeEach;
 var afterEach = lab.afterEach;
 
+var revert;
+
 describe('sfx', function () {
 
 	var originalOptions = {};
@@ -45,6 +47,10 @@ describe('sfx', function () {
 
 	afterEach(function (done) {
 		nock.cleanAll();
+		if (revert) {
+			revert();
+			revert = null;
+		}
 		done();
 	});
 
@@ -203,5 +209,16 @@ describe('sfx', function () {
 			expect(result.url).to.equal('http://example.com/path?param_textSearchType_value=startsWith&param_pattern_value=medicine');
 			done();
 		});
+	});
+
+	it('should set withCredentials to false', function (done) {
+		revert = sfx.__set__({http: {get: function (options) {
+			console.dir(options);
+			expect(options.withCredentials).to.be.false;
+			done();
+			return {on: function () {}};
+		}}});
+
+		sfx.search({searchTerm: 'medicine'});
 	});
 });
