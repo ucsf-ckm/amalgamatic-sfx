@@ -23,7 +23,10 @@ exports.search = function (query, callback) {
     var myUrl = options.url + '?param_textSearchType_value=startsWith&' +
             querystring.stringify({param_pattern_value: query.searchTerm});
 
-    http.get(myUrl, function (resp) {
+    var myOptions = url.parse(myUrl);
+    myOptions.withCredentials = false;
+
+    http.get(myOptions, function (resp) {
         var rawData = '';
 
         resp.on('data', function (chunk) {
