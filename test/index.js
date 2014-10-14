@@ -213,7 +213,6 @@ describe('sfx', function () {
 
 	it('should set withCredentials to false', function (done) {
 		revert = sfx.__set__({http: {get: function (options) {
-			console.dir(options);
 			expect(options.withCredentials).to.be.false;
 			done();
 			return {on: function () {}};
