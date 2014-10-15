@@ -1,4 +1,8 @@
 
+## [**5.0.3**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=11&state=closed)
+- [**#2**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/2) Document usage
+- [**#6**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/6) Travis-CI
+
 ## [**5.0.1**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues?milestone=10&state=closed)
 - [**#22**](https://github.com/ucsf-ckm/amalgamatic-sfx/issues/22) withCredentials default to false
 
