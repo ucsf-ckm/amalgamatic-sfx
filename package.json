@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/ucsf-ckm/amalgamatic-sfx.git"
   },
-  "version": "5.0.3",
+  "version": "5.0.4",
   "dependencies": {
     "cheerio": "^0.17.0",
     "util-extend": "^1.0.1"
